@@ -24,3 +24,11 @@ export const addOrUpdataTrad = (trademark)=>{
         })
     }
 }
+
+//删除
+export const deleteTrademarkList = (id)=>{
+    return request({
+        url:`/admin/product/baseTrademark/remove/${id}`,
+        method:"delete"
+    })
+}

@@ -16,7 +16,7 @@
       <el-table-column label="操作">
         <template slot-scope="{row,$index}">
           <el-button type="warning" icon="el-icon-edit-outline" @click="updataTmShow(row)">修改</el-button>
-          <el-button type="danger" icon="el-icon-delete">删除</el-button>
+          <el-button type="danger" icon="el-icon-delete" @click="deletetrademark(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -51,7 +51,8 @@
 </template>
 
 <script>
-import { reqTrademark, addOrUpdataTrad } from "@/api/product/trademark";
+import { reqTrademark, addOrUpdataTrad, deleteTrademarkList } from "@/api/product/trademark";
+import { async } from "q";
 export default {
   name: 'Trademark',
 
@@ -89,7 +90,7 @@ export default {
     async getTrademark() {
       const { page, limit } = this
       const re = await reqTrademark(page, limit)
-      console.log(re);
+      // console.log(re);
       if (re.code === 200) {
         this.total = re.data.total
         this.records = re.data.records
@@ -121,7 +122,7 @@ export default {
     //点击显示修改
     updataTmShow(row) {
       this.dialogFormVisible = true
-      console.log(row);
+      // console.log(row);
       this.tmForm = { ...row }
     },
 
@@ -154,7 +155,30 @@ export default {
           return false
         }
       })
+    },
 
+    //删除
+    async deletetrademark(row) {
+      // console.log(row);
+      this.$confirm(`确认删除${row.tmName}, 是否继续?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        await deleteTrademarkList(row.id)
+        // console.log(row.id);
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        });
+
+        this.getTrademark()
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
 
     },
 
@@ -178,16 +202,7 @@ export default {
 
 
 
-const re = await addOrUpdataTrad(this.tmForm)
-      if (re.code === 200) {
-        this.$message({
-          message: this.tmForm.id ? "修改成功" : "添加成功",
-          type: "success"
-        })
-      } else {
-        return false
-      }
-      this.getTrademark()
+
 
 <style>
 .avatar-uploader .el-upload {
