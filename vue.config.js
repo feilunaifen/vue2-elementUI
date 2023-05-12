@@ -27,7 +27,7 @@ module.exports = {
   publicPath: "/",
   outputDir: "dist",
   assetsDir: "static",
-  lintOnSave: process.env.NODE_ENV === "development",
+  lintOnSave: process.env.NODE_ENV === "production",
   productionSourceMap: false,
   devServer: {
     port: port,
@@ -40,7 +40,7 @@ module.exports = {
     proxy: {
       "/dev-api": {
         // 匹配所有以 '/dev-api'开头的请求路径
-        target:"http://gmall-h5-api.atguigu.cn", //后台接口地址
+        target: "http://gmall-h5-api.atguigu.cn", //后台接口地址
         changeOrigin: true, // 支持跨域
         pathRewrite: {
           // 重写路径: 去掉路径中开头的'/dev-api'

@@ -1,7 +1,7 @@
 <template>
   <el-card>
     <template #header>
-      <el-button type="primary" @click="dialogFormVisible = true">添加品牌</el-button>
+      <el-button type="primary" @click="isShow">添加品牌</el-button>
     </template>
     <el-table border style="width: 100%" :data=records>
       <el-table-column label="序号" align="center" width="80" type="index">
@@ -14,8 +14,10 @@
         </template>
       </el-table-column>
       <el-table-column label="操作">
-        <el-button type="warning" icon="el-icon-edit-outline">修改</el-button>
-        <el-button type="danger" icon="el-icon-delete">删除</el-button>
+        <template slot-scope="{row,$index}">
+          <el-button type="warning" icon="el-icon-edit-outline" @click="updataTmShow(row)">修改</el-button>
+          <el-button type="danger" icon="el-icon-delete">删除</el-button>
+        </template>
       </el-table-column>
     </el-table>
     <div class="block">
@@ -25,10 +27,10 @@
         @size-change="handleSizeChange">
       </el-pagination>
     </div>
-    <el-dialog title="添加品牌" :visible.sync="dialogFormVisible">
-      <el-form>
+    <el-dialog :title="tmForm.id ? '修改品牌' : '添加品牌'" :visible.sync="dialogFormVisible">
+      <el-form v-model="tmForm">
         <el-form-item label="品牌名称" label-width="100px">
-          <el-input autocomplete="off"></el-input>
+          <el-input autocomplete="off" v-model="tmForm.tmName"></el-input>
         </el-form-item>
         <el-form-item label="品牌logo" label-width="100px" :show-file-list="false" :auto-upload="false">
           <!-- :on-success="handleAvatarSuccess" -->
@@ -95,8 +97,27 @@ export default {
       this.limit = limit
       this.getTrademark()
     },
-    //限制图片格式和大小
 
+    //点击显示添加
+    isShow() {
+      this.dialogFormVisible = true
+      //每次点击清空表单
+      this.tmForm = {
+        tmName: "",
+        logoUrl: ""
+      }
+    },
+    //点击显示修改
+    updataTmShow(row) {
+      this.dialogFormVisible = true
+      console.log(row);
+      this.tmForm = { ...row }
+    },
+
+    //添加或修改品牌
+
+
+    //限制图片格式和大小
     beforeAvatarUpload(file) {
       const isJPG = file.type === 'image/jpeg';
       const isLt2M = file.size / 1024 / 1024 < 2;
@@ -140,4 +161,5 @@ export default {
   width: 178px;
   height: 178px;
   display: block;
-}</style>
+}
+</style>
