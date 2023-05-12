@@ -1,5 +1,5 @@
 <template>
-  <div>分类管理 </div>
+  <div>属性管理 </div>
 </template>
 
 <script>
