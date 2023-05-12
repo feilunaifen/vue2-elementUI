@@ -28,14 +28,14 @@
       </el-pagination>
     </div>
     <el-dialog :title="tmForm.id ? '修改品牌' : '添加品牌'" :visible.sync="dialogFormVisible">
-      <el-form v-model="tmForm">
-        <el-form-item label="品牌名称" label-width="100px">
+      <el-form :model="tmForm" :rules="rules" ref="rulesForm">
+        <el-form-item label="品牌名称" label-width="100px" prop="tmName">
           <el-input autocomplete="off" v-model="tmForm.tmName"></el-input>
         </el-form-item>
-        <el-form-item label="品牌logo" label-width="100px" :show-file-list="false" :auto-upload="false">
+        <el-form-item label="品牌logo" label-width="100px" prop="logoUrl">
           <!-- :on-success="handleAvatarSuccess" -->
           <el-upload class="avatar-uploader" action="/dev-api/admin/product/fileUpload" :show-file-list="false"
-            :before-upload="beforeAvatarUpload">
+            :before-upload="beforeAvatarUpload" :on-success="handleAvatarSuccess" :on-change="handleChange">
             <img v-if="tmForm.logoUrl" :src="tmForm.logoUrl" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
             <div slot="tip" class="el-upload__tip">只能上传jpg文件，且不超过2M</div>
@@ -44,14 +44,14 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+        <el-button type="primary" @click="addOrUpdataTm">确 定</el-button>
       </div>
     </el-dialog>
   </el-card>
 </template>
 
 <script>
-import { reqTrademark } from "@/api/product/trademark";
+import { reqTrademark, addOrUpdataTrad } from "@/api/product/trademark";
 export default {
   name: 'Trademark',
 
@@ -65,7 +65,18 @@ export default {
         logoUrl: '',
         tmName: ''
       },
-      dialogFormVisible: false
+      dialogFormVisible: false,
+      rules: {
+        //品牌名称的验证规则
+        tmName: [
+          { required: true, message: '请输入品牌名称', trigger: 'blur' },
+          { min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'change' }
+        ],
+        //品牌的的logo的验证规则
+        logoUrl: [
+          { required: true, message: '请选择品牌图片', trigger: 'change' }
+        ],
+      }
     }
   },
 
@@ -114,8 +125,38 @@ export default {
       this.tmForm = { ...row }
     },
 
-    //添加或修改品牌
+    //上传图片
+    handleAvatarSuccess(res, file) {
+      // console.log(res);
+      this.tmForm.logoUrl = res.data
+      // this.$refs.rulesForm.clearFiles()
+    },
+    handleChange() {
+      // console.log(this.$refs.tmForm);
+      // this.$refs.tmForm.validateField("logoUrl")
+    },
 
+    //添加或修改品牌
+    addOrUpdataTm() {
+      // 
+      // console.log(this.$refs.rulesForm);
+      this.$refs.rulesForm.validate(async (success) => {
+        this.dialogFormVisible = false
+        if (success) {
+          await addOrUpdataTrad(this.tmForm)
+          this.$message({
+            message: this.tmForm.id ? "修改成功" : "添加成功",
+            type: "success"
+          })
+          this.getTrademark()
+          this.$refs["rulesForm"].clearValidate()
+        } else {
+          return false
+        }
+      })
+
+
+    },
 
     //限制图片格式和大小
     beforeAvatarUpload(file) {
@@ -134,6 +175,19 @@ export default {
   }
 }
 </script>
+
+
+
+const re = await addOrUpdataTrad(this.tmForm)
+      if (re.code === 200) {
+        this.$message({
+          message: this.tmForm.id ? "修改成功" : "添加成功",
+          type: "success"
+        })
+      } else {
+        return false
+      }
+      this.getTrademark()
 
 <style>
 .avatar-uploader .el-upload {
